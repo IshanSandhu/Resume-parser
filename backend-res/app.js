@@ -1,6 +1,8 @@
 const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
+const http = require("http");
+const fs = require("fs");
 
 const port = 4000;
 const app = express();
@@ -41,6 +43,31 @@ app.post("/multiplefiles", upload.array("files"), function (req, res, next) {
   }
 });
 
+const server = http.createServer(function(req, res) {
+  let img = __dirname + "/540892.jpeg";
+
+  fs.access(img, fs.constants.F_OK, err => {
+    //check that we can access  the file
+    console.log(`${img} ${err ? "does not exist" : "exists"}`);
+  });
+
+  fs.readFile(img, function(err, content) {
+    if (err) {
+      res.writeHead(404, { "Content-type": "text/html" });
+      res.end("<h1>No such image</h1>");
+    } else {
+      //specify the content type in the response will be an image
+      res.writeHead(200, { "Content-type": "image/jpeg" });
+      res.end(content);
+    }
+  });
+});
+
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
+});
+
+server.listen(4001, function() {
+  console.log(`Server running on port http://localhost:4001`);
 });
